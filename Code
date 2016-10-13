@@ -1,0 +1,68 @@
+#include <Servo.h>
+#include <SPI.h>
+#include <RFID.h>
+
+
+
+int led_rouge = 6;
+int led_verte = 7;
+int Etat;
+int BouttonLock = 3;
+int BouttonLockEtat;
+
+int compteur;
+
+RFID monModuleRFID(10,9);
+Servo monServo;
+
+int UID[5]={};
+
+int actuateur = 0;
+
+void setup()
+{
+  Serial.begin(9600);
+  SPI.begin();
+  monModuleRFID.init();  
+  digitalWrite(led_verte, HIGH);
+  pinMode(led_verte, OUTPUT);
+  pinMode(led_rouge, OUTPUT);
+  monServo.attach(2);
+}
+
+void loop()
+{
+    if (monModuleRFID.isCard()) {  
+          if (monModuleRFID.readCardSerial()) {        
+            
+            for(int i=0;i<=4;i++)
+            {
+              UID[i]=monModuleRFID.serNum[i];
+            
+            }
+            Serial.println("");
+          }
+          
+          if (UID[0] == 109,191,165,197,178 or 164,212,8,111,23)
+          {
+              monServo.write(90);
+              digitalWrite(led_rouge, HIGH);
+              digitalWrite(led_verte, LOW);
+              Etat++;
+          }
+          if (UID[0] == 109,191,165,197,178 or 164,212,8,111,23 && Etat == 1 )
+          {
+              
+              monServo.write(180);
+              digitalWrite(led_verte, HIGH);
+              digitalWrite(led_rouge, LOW);
+              Etat--;
+
+          }          
+  
+          
+    }
+    delay(350); 
+
+          BouttonLockEtat = digitalRead(BouttonLock);   
+}
